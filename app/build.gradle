@@ -32,4 +32,14 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    // log
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // glide
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+
+    // retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 }
