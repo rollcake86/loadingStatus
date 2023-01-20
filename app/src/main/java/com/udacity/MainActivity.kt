@@ -13,12 +13,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.udacity.util.DownloadUtils
 import com.udacity.util.sendNotification
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Timber.plant(Timber.DebugTree())
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         createChannel(
@@ -44,13 +48,12 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
-            download()
-            notificationManager.cancelAll()
-            notificationManager.sendNotification(
-                getText(R.string.notification_content).toString(),
-                this
-            )
-
+            when(radioGroup.checkedRadioButtonId) {
+                -1 -> makeToast()
+                radioButton.id -> download(DownloadUtils.Glide)
+                radioButton2.id -> download(DownloadUtils.LoadApp)
+                radioButton3.id -> download(DownloadUtils.Retrofit)
+            }
         }
     }
 
@@ -60,7 +63,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun download() {
+    private fun makeToast() {
+        Toast.makeText(this, getString(R.string.selected_radio) , Toast.LENGTH_SHORT).show()
+    }
+
+    private fun download(downloadUtils: DownloadUtils ) {
         val request =
             DownloadManager.Request(Uri.parse(URL))
                 .setTitle(getString(R.string.app_name))
@@ -72,7 +79,12 @@ class MainActivity : AppCompatActivity() {
         val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         downloadID =
             downloadManager.enqueue(request)// enqueue puts the download request in the queue.
-        Log.e("TAG" , downloadID.toString())
+        notificationManager.cancelAll()
+        notificationManager.sendNotification(
+            getText(R.string.notification_content).toString(),
+            downloadUtils ,this
+        )
+
     }
 
     companion object {
@@ -82,7 +94,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createChannel(channelId: String, channelName: String) {
-
         val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel(
                 channelId,
