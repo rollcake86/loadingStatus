@@ -8,25 +8,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.Cursor
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
-import androidx.lifecycle.Observer
 import com.udacity.util.DownloadUtils
 import com.udacity.util.SendData
 import com.udacity.util.sendNotification
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import timber.log.Timber
-import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationManager: NotificationManager
     private lateinit var pendingIntent: PendingIntent
     private lateinit var action: NotificationCompat.Action
+    private var isDownloadFinished = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             NotificationManager::class.java
         ) as NotificationManager
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        registerReceiver(downloadReceiver, IntentFilter(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
 
         custom_button.setOnClickListener {
             custom_button.buttonState = ButtonState.Clicked
@@ -89,6 +87,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val downloadReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+                Timber.i("downloading")
+        }
+    }
+
     private fun getRadioChecked(checkedRadioButtonId: Int): DownloadUtils {
         when (checkedRadioButtonId) {
             radioButton.id -> return DownloadUtils.Glide
@@ -116,6 +120,36 @@ class MainActivity : AppCompatActivity() {
         val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         downloadID =
             downloadManager.enqueue(request)
+//        var progress = 0
+//        while (!isDownloadFinished) {
+//            val cursor: Cursor =
+//                downloadManager.query(DownloadManager.Query().setFilterById(downloadID))
+//            if (cursor.moveToFirst()) {
+//                val downloadStatus: Int =
+//                    cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+//                when (downloadStatus) {
+//                    DownloadManager.STATUS_RUNNING -> {
+//                        val totalBytes: Long =
+//                            cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+//                        if (totalBytes > 0) {
+//                            val downloadedBytes: Long =
+//                                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+//                            progress = (downloadedBytes * 100 / totalBytes).toInt()
+//                        }
+//                    }
+//                    DownloadManager.STATUS_SUCCESSFUL -> {
+//                        progress = 100
+//                        isDownloadFinished = true
+//                    }
+//                    DownloadManager.STATUS_PAUSED, DownloadManager.STATUS_PENDING -> {
+//                    }
+//                    DownloadManager.STATUS_FAILED -> isDownloadFinished = true
+//                }
+//            }
+//        }
+
+
+
     }
 
     companion object {
