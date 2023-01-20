@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import timber.log.Timber
 import kotlin.properties.Delegates
 
 private const val STROKE_WIDTH = 12f // has to be float
@@ -18,7 +19,7 @@ class LoadingButton @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
     private var widthSize = 0
     private var heightSize = 0
-
+    private var drawTextValue = "Download"
     private val drawColor = ResourcesCompat.getColor(resources, R.color.colorAccent , null)
 
     private val valueAnimator = ValueAnimator()
@@ -47,10 +48,24 @@ class LoadingButton @JvmOverloads constructor(
         style = Paint.Style.FILL // default: FILL
     }
 
-    private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
+    var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
 
+        when(new){
+            ButtonState.Clicked -> {
+                drawTextValue = "Download"
+            }
+            ButtonState.Completed -> {
+                drawTextValue = "Download"
+            }
+            ButtonState.Loading -> {
+                drawTextValue = "Downloading"
+            }
+        }
     }
 
+//    val _buttonState = MutableLiveData<ButtonState>()
+//    val buttonState : LiveData<ButtonState>
+//        get() = _buttonState
 
     init {
 
@@ -65,7 +80,7 @@ class LoadingButton @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawRect(frame, paint)
-        canvas.drawText("Download" , frame.width().toFloat() / 2 - 120, frame.height().toFloat() / 2 + 20 , textPaint)
+        canvas.drawText(drawTextValue , frame.width().toFloat() / 2 - 120, frame.height().toFloat() / 2 + 20 , textPaint)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

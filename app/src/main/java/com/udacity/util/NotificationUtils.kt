@@ -4,10 +4,13 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.core.app.NotificationCompat
 import com.udacity.DetailActivity
 import com.udacity.MainActivity
 import com.udacity.R
+
 
 // Notification ID.
 private val NOTIFICATION_ID = 0
@@ -15,9 +18,9 @@ private val REQUEST_CODE = 0
 private val FLAGS = 0
 
 
-fun NotificationManager.sendNotification(messageBody: String, downloadUtils: DownloadUtils  , applicationContext: Context) {
+fun NotificationManager.sendNotification(messageBody: String, senddata: SendData  , applicationContext: Context) {
 
-    val contentIntent = Intent(applicationContext, DetailActivity::class.java).putExtra("download" , downloadUtils)
+    val contentIntent = Intent(applicationContext, DetailActivity::class.java).putExtra("download" , senddata)
 
     val contentPendingIntent = PendingIntent.getActivity(
         applicationContext,

@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.udacity.util.DownloadUtils
+import com.udacity.util.SendData
 import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.android.synthetic.main.content_detail.*
 import timber.log.Timber
@@ -14,8 +15,8 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
         setSupportActionBar(toolbar)
-        val downloadUtils = intent.getSerializableExtra("download") as DownloadUtils
-        when(downloadUtils){
+        val downloadUtils = intent.getParcelableExtra<SendData>("download")
+        when(downloadUtils!!.downloadUtils){
             DownloadUtils.Glide -> {
                 file_name.text = getString(R.string.radio1)
                 file_status.text = getString(R.string.success)

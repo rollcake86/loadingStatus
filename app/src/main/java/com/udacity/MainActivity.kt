@@ -12,16 +12,21 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
+import androidx.lifecycle.Observer
 import com.udacity.util.DownloadUtils
+import com.udacity.util.SendData
 import com.udacity.util.sendNotification
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import timber.log.Timber
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -48,11 +53,12 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
-            when(radioGroup.checkedRadioButtonId) {
+            custom_button.buttonState = ButtonState.Clicked
+            when (radioGroup.checkedRadioButtonId) {
                 -1 -> makeToast()
-                radioButton.id -> download(DownloadUtils.Glide)
-                radioButton2.id -> download(DownloadUtils.LoadApp)
-                radioButton3.id -> download(DownloadUtils.Retrofit)
+                radioButton.id -> download()
+                radioButton2.id -> download()
+                radioButton3.id -> download()
             }
         }
     }
@@ -60,14 +66,45 @@ class MainActivity : AppCompatActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+
+            val query: DownloadManager.Query = DownloadManager.Query()
+            query.setFilterById(id!!)
+            var cursor = downloadManager.query(query)
+            if (!cursor.moveToFirst()) {
+                return
+            }
+
+            var columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+            var status = cursor.getInt(columnIndex)
+            var sendData =
+                SendData(downloadUtils = getRadioChecked(radioGroup.checkedRadioButtonId), status)
+            custom_button.buttonState = ButtonState.Completed
+            notificationManager.cancelAll()
+            notificationManager.sendNotification(
+                getText(R.string.notification_content).toString(),
+                sendData, context!!
+            )
+            custom_button.isEnabled = true
         }
     }
 
-    private fun makeToast() {
-        Toast.makeText(this, getString(R.string.selected_radio) , Toast.LENGTH_SHORT).show()
+    private fun getRadioChecked(checkedRadioButtonId: Int): DownloadUtils {
+        when (checkedRadioButtonId) {
+            radioButton.id -> return DownloadUtils.Glide
+            radioButton2.id -> return DownloadUtils.LoadApp
+            radioButton3.id -> return DownloadUtils.Retrofit
+        }
+        return DownloadUtils.LoadApp
     }
 
-    private fun download(downloadUtils: DownloadUtils ) {
+    private fun makeToast() {
+        Toast.makeText(this, getString(R.string.selected_radio), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun download() {
+        custom_button.buttonState = ButtonState.Loading
+        custom_button.isEnabled = false
         val request =
             DownloadManager.Request(Uri.parse(URL))
                 .setTitle(getString(R.string.app_name))
@@ -78,13 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         downloadID =
-            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
-        notificationManager.cancelAll()
-        notificationManager.sendNotification(
-            getText(R.string.notification_content).toString(),
-            downloadUtils ,this
-        )
-
+            downloadManager.enqueue(request)
     }
 
     companion object {
@@ -99,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                 channelId,
                 channelName,
                 NotificationManager.IMPORTANCE_HIGH
-            ) .apply {
+            ).apply {
                 setShowBadge(false)
             }
         } else {
