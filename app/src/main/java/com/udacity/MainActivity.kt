@@ -77,7 +77,9 @@ class MainActivity : AppCompatActivity() {
             var status = cursor.getInt(columnIndex)
             var sendData =
                 SendData(downloadUtils = getRadioChecked(radioGroup.checkedRadioButtonId), status)
+
             custom_button.buttonState = ButtonState.Completed
+
             notificationManager.cancelAll()
             notificationManager.sendNotification(
                 getText(R.string.notification_content).toString(),
@@ -120,36 +122,6 @@ class MainActivity : AppCompatActivity() {
         val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         downloadID =
             downloadManager.enqueue(request)
-//        var progress = 0
-//        while (!isDownloadFinished) {
-//            val cursor: Cursor =
-//                downloadManager.query(DownloadManager.Query().setFilterById(downloadID))
-//            if (cursor.moveToFirst()) {
-//                val downloadStatus: Int =
-//                    cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-//                when (downloadStatus) {
-//                    DownloadManager.STATUS_RUNNING -> {
-//                        val totalBytes: Long =
-//                            cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-//                        if (totalBytes > 0) {
-//                            val downloadedBytes: Long =
-//                                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-//                            progress = (downloadedBytes * 100 / totalBytes).toInt()
-//                        }
-//                    }
-//                    DownloadManager.STATUS_SUCCESSFUL -> {
-//                        progress = 100
-//                        isDownloadFinished = true
-//                    }
-//                    DownloadManager.STATUS_PAUSED, DownloadManager.STATUS_PENDING -> {
-//                    }
-//                    DownloadManager.STATUS_FAILED -> isDownloadFinished = true
-//                }
-//            }
-//        }
-
-
-
     }
 
     companion object {

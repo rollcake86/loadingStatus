@@ -33,9 +33,7 @@ class LoadingButton @JvmOverloads constructor(
 
     private val paint = Paint().apply {
         color = drawColor
-        // Smooths out edges of what is drawn without affecting shape.
         isAntiAlias = true
-        // Dithering affects how colors with higher-precision than the device are down-sampled.
         isDither = true
         style = Paint.Style.FILL // default: FILL
         strokeJoin = Paint.Join.ROUND // default: MITER
@@ -45,9 +43,7 @@ class LoadingButton @JvmOverloads constructor(
 
     private val paint2 = Paint().apply {
         color = ResourcesCompat.getColor(resources, R.color.colorPrimaryDark , null)
-        // Smooths out edges of what is drawn without affecting shape.
         isAntiAlias = true
-        // Dithering affects how colors with higher-precision than the device are down-sampled.
         isDither = true
         style = Paint.Style.FILL // default: FILL
         strokeJoin = Paint.Join.ROUND // default: MITER
@@ -57,11 +53,9 @@ class LoadingButton @JvmOverloads constructor(
 
     private val textPaint = Paint().apply {
         color = Color.WHITE
-        // Smooths out edges of what is drawn without affecting shape.
         isAntiAlias = true
         textSize = 70f
         textAlignment = TEXT_ALIGNMENT_CENTER
-        // Dithering affects how colors with higher-precision than the device are down-sampled.
         isDither = true
         style = Paint.Style.FILL // default: FILL
     }
@@ -70,29 +64,29 @@ class LoadingButton @JvmOverloads constructor(
 
         when(new){
             ButtonState.Clicked -> {
-                valueAnimator.start()
                 drawTextValue = "Download"
             }
             ButtonState.Completed -> {
                 drawTextValue = "Download"
+                valueAnimator.cancel()
+                percentage = 0
+                frame2 = Rect(0, 0, (width / 100 * percentage)   , height)
             }
             ButtonState.Loading -> {
-                drawTextValue = "Downloading"
+                valueAnimator.start()
+                drawTextValue = "We are loading"
             }
         }
     }
 
-//    val _buttonState = MutableLiveData<ButtonState>()
-//    val buttonState : LiveData<ButtonState>
-//        get() = _buttonState
    var percentage = 0
     init {
         valueAnimator.addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
             override fun onAnimationUpdate(p0: ValueAnimator?) {
                 percentage = p0!!.getAnimatedValue() as Int
                 Timber.i("animation percetage $percentage")
-                val inset = 5
-                frame2 = Rect(inset, inset, (width / 100 * percentage) - inset  , height - inset)
+
+                frame2 = Rect(0, 0, (width / 100 * percentage)   , height)
                 invalidate()
             }
         })
@@ -101,9 +95,8 @@ class LoadingButton @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val inset = 5
-        frame = Rect(inset, inset, width - inset, height - inset)
-        frame2 = Rect(inset, inset, (width / 100 * percentage) - inset  , height - inset)
+        frame = Rect(0, 0, width , height )
+        frame2 = Rect(0, 0, (width / 100 * percentage)  , height )
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -111,7 +104,7 @@ class LoadingButton @JvmOverloads constructor(
         canvas.drawRect(frame, paint)
         canvas.drawRect(frame2 , paint2)
         canvas.drawText(drawTextValue , frame.width().toFloat() / 2 - 120, frame.height().toFloat() / 2 + 20 , textPaint)
-        canvas.drawCircle(50f, 50f, 50f, circleFillPaint);
+        canvas.drawArc(frame.width().toFloat() - 200,50f,frame.width().toFloat() -100,150f,0f,percentage * 3.6f,true,circleFillPaint)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
