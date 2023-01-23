@@ -22,6 +22,9 @@
         android:layout_margin="20dp"
         android:layout_marginBottom="16dp"
         android:textAlignment="center"
+        app:state="Completed"
+        app:completeColor="@color/colorPrimary"
+        app:loadingColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -20,13 +20,21 @@ private val FLAGS = 0
 
 fun NotificationManager.sendNotification(messageBody: String, senddata: SendData  , applicationContext: Context) {
 
-    val contentIntent = Intent(applicationContext, DetailActivity::class.java).putExtra("download" , senddata)
+    val contentIntent = Intent(applicationContext, MainActivity::class.java)
 
     val contentPendingIntent = PendingIntent.getActivity(
         applicationContext,
         NOTIFICATION_ID,
         contentIntent,
         PendingIntent.FLAG_UPDATE_CURRENT
+    )
+
+    val detailIntent = Intent(applicationContext, DetailActivity::class.java).putExtra("download" , senddata)
+    val detailPendingIntent: PendingIntent = PendingIntent.getActivity(
+        applicationContext,
+        REQUEST_CODE,
+        detailIntent,
+        FLAGS
     )
 
     val builder = NotificationCompat.Builder(
@@ -40,6 +48,11 @@ fun NotificationManager.sendNotification(messageBody: String, senddata: SendData
         .setSmallIcon(R.drawable.ic_assistant_black_24dp)
         .setContentText(messageBody)
         .setContentIntent(contentPendingIntent)
+        .addAction(
+            R.drawable.ic_assistant_black_24dp,
+            applicationContext.getString(R.string.detail_check),
+            detailPendingIntent
+        )
         .setAutoCancel(true)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
     notify(NOTIFICATION_ID, builder.build())

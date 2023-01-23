@@ -20,7 +20,8 @@ class LoadingButton @JvmOverloads constructor(
     private var widthSize = 0
     private var heightSize = 0
     private var drawTextValue = "Download"
-    private val drawColor = ResourcesCompat.getColor(resources, R.color.colorPrimary , null)
+    private var drawColor = ResourcesCompat.getColor(resources, R.color.colorPrimary , null)
+    private var loadingdrawColor = ResourcesCompat.getColor(resources, R.color.colorPrimaryDark , null)
 
     private val circleFillPaint = Paint().apply {
         style = Paint.Style.FILL
@@ -42,7 +43,7 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     private val paint2 = Paint().apply {
-        color = ResourcesCompat.getColor(resources, R.color.colorPrimaryDark , null)
+        color = loadingdrawColor
         isAntiAlias = true
         isDither = true
         style = Paint.Style.FILL // default: FILL
@@ -91,6 +92,16 @@ class LoadingButton @JvmOverloads constructor(
             }
         })
         valueAnimator.duration = 2000
+        setupAttributes(attrs)
+    }
+
+    private fun setupAttributes(attrs: AttributeSet?) {
+
+        val typedArray = context.theme.obtainStyledAttributes(attrs, R.styleable.LoadingButton,
+            0, 0)
+        drawColor = typedArray.getColor(R.styleable.LoadingButton_completeColor , context.getColor(R.color.colorPrimary))
+        loadingdrawColor = typedArray.getColor(R.styleable.LoadingButton_loadingColor , context.getColor(R.color.colorPrimaryDark))
+        typedArray.recycle()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
